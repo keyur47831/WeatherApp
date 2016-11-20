@@ -108,6 +108,13 @@ public class HomeViewModel extends BaseObservable implements AdapterView.OnItemS
                     setWind (String.valueOf (kmph)+"km/h");
                     homeViewModelContract.notifyDataChanged (HomeViewModel.this);
                 }
+                else {
+                    try {
+                        homeViewModelContract.ShowToastMessage (response.errorBody ().string ());
+                    } catch (Exception ex) {
+                        homeViewModelContract.ShowToastMessage (ex.getMessage ());
+                    }
+                }
             }
 
             @Override
