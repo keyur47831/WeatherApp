@@ -7,7 +7,7 @@ package code4share.weatherapp.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Clouds {
+ class Clouds {
 
     @SerializedName("all")
     @Expose

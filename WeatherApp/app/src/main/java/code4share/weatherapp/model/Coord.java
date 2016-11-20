@@ -8,7 +8,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 
-public class Coord {
+ class Coord {
 
     @SerializedName("lon")
     @Expose

@@ -5,7 +5,9 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.AdapterView;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 import code4share.weatherapp.model.OpenWeatherModel;
 import code4share.weatherapp.network.ApiClient;
@@ -22,12 +24,12 @@ import retrofit2.Response;
  */
 
 public class HomeViewModel extends BaseObservable implements AdapterView.OnItemSelectedListener {
-    String cityName;
-    String updateTime;
-    String weather;
-    String temperature;
-    String wind;
-    HomeViewModelContract homeViewModelContract;
+    private String cityName;
+    private String updateTime;
+    private String weather;
+    private String temperature;
+    private String wind;
+    private HomeViewModelContract homeViewModelContract;
 
     public HomeViewModel (HomeViewModelContract callback) {
         homeViewModelContract = callback;
@@ -37,7 +39,7 @@ public class HomeViewModel extends BaseObservable implements AdapterView.OnItemS
         return cityName;
     }
 
-    public void setCityName (String cityName) {
+    private void setCityName (String cityName) {
         this.cityName = cityName;
     }
 
@@ -73,19 +75,16 @@ public class HomeViewModel extends BaseObservable implements AdapterView.OnItemS
         this.wind = wind;
     }
 
-    public void onCitySelected (String data) {
-
-    }
-
     @Override
     public void onItemSelected (AdapterView<?> adapterView, View view, int i, long l) {
-        // homeViewModel.onCitySelected ((String)adapterView.getItemAtPosition (i));
-        getServerData ((String) adapterView.getItemAtPosition (i));
+        String selectedItem=(String) adapterView.getItemAtPosition (i);
+       if(getCityName ()==null || !getCityName ().equalsIgnoreCase (selectedItem)) {
+           getServerData (selectedItem);
+       }
     }
 
     @Override
     public void onNothingSelected (AdapterView<?> parent) {
-        // Another interface callback
     }
 
     private void getServerData (@NonNull String city) {
@@ -99,12 +98,14 @@ public class HomeViewModel extends BaseObservable implements AdapterView.OnItemS
                 if (response.isSuccessful ()) {
                     OpenWeatherModel data = response.body ();
                     setCityName (data.getName ());
-                    setTemperature (String.valueOf (data.getMain ().getTemp ()));
+                    setTemperature (String.valueOf (data.getMain ().getTemp ())+"\u2103");
+                    SimpleDateFormat sdf = new SimpleDateFormat ("E h:mm a", Locale.ENGLISH);
                     Calendar updateTimeCal = Calendar.getInstance ();
-                    updateTimeCal.setTimeInMillis (data.getDt ());
-                    setUpdateTime (updateTimeCal.getTime ().toString ());
+                    updateTimeCal.setTimeInMillis (data.getDt ()*1000L);
+                    setUpdateTime (sdf.format (updateTimeCal.getTime ()));
                     setWeather (data.getWeather ().get (0).getDescription ());
-                    setWind (String.valueOf (data.getWind ().getSpeed ()));
+                    double kmph=(data.getWind ().getSpeed ()*3600)/1000;
+                    setWind (String.valueOf (kmph)+"km/h");
                     homeViewModelContract.notifyDataChanged (HomeViewModel.this);
                 }
             }
@@ -116,4 +117,5 @@ public class HomeViewModel extends BaseObservable implements AdapterView.OnItemS
             }
         });
     }
+
 }
